@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CharMovement : MonoBehaviour 
+public class CharMovementB : MonoBehaviour 
 {
 	public float speed = 2;
 	public float staticSpeed;
@@ -24,8 +24,8 @@ public class CharMovement : MonoBehaviour
 
 	void FixedUpdate()
 	{
-		float lh = Input.GetAxisRaw ("Horizontal");
-		float lv = Input.GetAxisRaw ("Vertical");
+		float lh = Input.GetAxisRaw ("Horizontal2");
+		float lv = Input.GetAxisRaw ("Vertical2");
 
 		Move (lh, lv);
 	}

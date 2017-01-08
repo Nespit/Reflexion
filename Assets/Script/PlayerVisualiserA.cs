@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerVisualiser : MonoBehaviour {
+public class PlayerVisualiserA : MonoBehaviour {
 
 	public Material[] dashFrames;
 	public int select = 0;
 	int dir = 1;
 	float timer = 1;
 	MeshRenderer r;
-	public Color c;
-	CharMovement cm;
+	CharMovementA cm;
 
 	void Start () {
 		r = GetComponent<MeshRenderer> ();
-		cm = GetComponent<CharMovement> ();
+		cm = GetComponent<CharMovementA> ();
 
 	}
 	
