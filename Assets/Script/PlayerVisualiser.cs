@@ -2,23 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpriteRandomizer : MonoBehaviour {
+public class PlayerVisualiser : MonoBehaviour {
 
 	public Material[] mats;
 	public int select = 0;
 	int dir = 1;
 	float timer = 1;
 	MeshRenderer r;
+	public Color c;
+	PlayerMovement pm;
 
 	void Start () {
 		r = GetComponent<MeshRenderer> ();
-		
+		pm = GetComponent<PlayerMovement> ();
+
 	}
 	
 
 	void Update () {
 
-		if (Input.GetKey(KeyCode.Space)){
+		if (pm.dashing){
 			timer += 0.3f;
 
 			if (timer >= 1){
@@ -40,11 +43,14 @@ public class SpriteRandomizer : MonoBehaviour {
 
 			r.material = mats [select];
 
+
 		}
 		else{
 			timer = 1;
 			r.material = mats [0];
 		}
+
+
 
 	}
 }
