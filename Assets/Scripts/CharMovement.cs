@@ -4,8 +4,14 @@ using System.Collections;
 public class CharMovement : MonoBehaviour 
 {
 	public float speed = 2;
+	public float staticSpeed;
 	public float runSpeed = 5f;
 	public float turnSmoothing = 15f;
+
+	float timer;
+	public float dashIntensity;
+	public bool dashing = false;
+	public KeyCode dash;
 
 	private Vector3 movement;
 	private Rigidbody playerRigidBody;
@@ -13,6 +19,7 @@ public class CharMovement : MonoBehaviour
 	void Awake()
 	{
 		playerRigidBody = GetComponent<Rigidbody> ();
+		speed = staticSpeed;
 	}
 
 	void FixedUpdate()
@@ -40,6 +47,21 @@ public class CharMovement : MonoBehaviour
 		}
 
 		playerRigidBody.MovePosition (transform.position + movement);
+
+
+		if(Input.GetKeyDown(dash)){
+			timer = dashIntensity;
+			dashing = true;
+		}
+
+		if (timer > 0){
+			timer -= 0.1f;
+			speed = timer * 20;
+		}
+		else if(timer <= 0) {
+			speed = staticSpeed;
+			dashing = false;
+		}
 
 
 		if (lh != 0f || lv != 0f) 

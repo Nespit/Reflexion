@@ -4,29 +4,29 @@ using UnityEngine;
 
 public class PlayerVisualiser : MonoBehaviour {
 
-	public Material[] mats;
+	public Material[] dashFrames;
 	public int select = 0;
 	int dir = 1;
 	float timer = 1;
 	MeshRenderer r;
 	public Color c;
-	PlayerMovement pm;
+	CharMovement cm;
 
 	void Start () {
 		r = GetComponent<MeshRenderer> ();
-		pm = GetComponent<PlayerMovement> ();
+		cm = GetComponent<CharMovement> ();
 
 	}
 	
 
 	void Update () {
 
-		if (pm.dashing){
+		if (cm.dashing){
 			timer += 0.3f;
 
 			if (timer >= 1){
 				timer = 0f;
-				if(select >= mats.Length-1){
+				if(select >= dashFrames.Length-1){
 					//select = 0;
 					dir *= -1;
 				}
@@ -36,18 +36,13 @@ public class PlayerVisualiser : MonoBehaviour {
 				}
 
 				select += dir;
-			}
-
-
-
-
-			r.material = mats [select];
-
+			}				
+			r.material = dashFrames [select];
 
 		}
 		else{
 			timer = 1;
-			r.material = mats [0];
+			r.material = dashFrames [0];
 		}
 
 

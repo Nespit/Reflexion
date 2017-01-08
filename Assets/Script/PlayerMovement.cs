@@ -6,8 +6,10 @@ public class PlayerMovement : MonoBehaviour {
 
 	GameObject player;
 	private Rigidbody rigidBody;
+	Blaster blaster;
+
 	public GameObject target;
-	public KeyCode up, down, left, right, dash;
+	public KeyCode up, down, left, right, dash, blast;
 	public float movementSpeed;
 	public bool dashing = false;
 	public float timer = 0;
@@ -17,6 +19,7 @@ public class PlayerMovement : MonoBehaviour {
 		player = this.gameObject;
 		rigidBody = GetComponent<Rigidbody> ();
 		movementSpeed = staticSpeed;
+		blaster = GetComponentInChildren<Blaster> ();
 	}
 	
 	// Update is called once per frame
@@ -50,6 +53,10 @@ public class PlayerMovement : MonoBehaviour {
 		else if(timer <= 0) {
 			movementSpeed = staticSpeed;
 			dashing = false;
+		}
+
+		if(Input.GetKey(blast)){
+			blaster.DoBlast ();
 		}
 		
 	}
