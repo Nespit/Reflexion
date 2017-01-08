@@ -1,8 +1,15 @@
 fileFormatVersion: 2
+<<<<<<< 8c02e114e07764f4c051494e926a6dc8113fe7d1
 guid: 06564611ac1504e658725ab4a77b6e08
 folderAsset: yes
 timeCreated: 1483813722
 licenseType: Pro
+=======
+guid: 6635e0c3f25134b508fe48e0dad6dc30
+folderAsset: yes
+timeCreated: 1483884979
+licenseType: Free
+>>>>>>> A lot of fucking around with creating some kind og player character
 DefaultImporter:
   userData: 
   assetBundleName: 
