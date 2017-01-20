@@ -73,8 +73,6 @@ public class CharMovementB : MonoBehaviour
 
 	void Rotating (float lh, float lv)
 	{
-		Vector3 targetDirection = new Vector3 (lh, 0f, lv);
-
 		Quaternion targetRotation = Quaternion.LookRotation (movement, Vector3.up);
 
 		Quaternion newRotation = Quaternion.Lerp (GetComponent<Rigidbody> ().rotation, targetRotation, turnSmoothing * Time.deltaTime);
