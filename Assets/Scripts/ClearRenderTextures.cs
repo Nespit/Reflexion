@@ -18,13 +18,13 @@ public class ClearRenderTextures : MonoBehaviour {
 		
 	}
 
-	void OnPreRender ()
-	{
-		RenderTexture currentActiveRT;
-
-		currentActiveRT = RenderTexture.active;
-		RenderTexture.active = tileRenderTexture;
-		GL.Clear(false, true, Color.clear);
-		RenderTexture.active = currentActiveRT;
-	}
+//	void OnPreRender ()
+//	{
+//		RenderTexture currentActiveRT;
+//
+//		currentActiveRT = RenderTexture.active;
+//		RenderTexture.active = tileRenderTexture;
+//		GL.Clear(false, true, Color.clear);
+//		RenderTexture.active = currentActiveRT;
+//	}
 }
