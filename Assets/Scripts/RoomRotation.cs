@@ -23,8 +23,13 @@ public class RoomRotation : MonoBehaviour
 	private bool canBeRotated;
 	public bool isRotating;
 	Vector3 targetRotation;
+	Quaternion startRotation;
 	private Coroutine rotator;
 	private Coroutine rotating;
+
+	public float transitionTime; 
+	private float targetTime;
+
 
 	void Start()
 	{
@@ -57,6 +62,7 @@ public class RoomRotation : MonoBehaviour
 		if(!isRotating)
 			transform.RotateAround(Vector3.zero, Vector3.up, 20 * Time.deltaTime);
 
+
 		//Enable interactive rotatability.
 		EnableRotatability ();
 
@@ -76,14 +82,13 @@ public class RoomRotation : MonoBehaviour
 		}
 
 		//Check for rotation trigger.
-		for (int i = 0; i < walls.Length; i++) 
-		{
-			if (i != floor && i != (5 - floor)) 
-			{
-				if (wallTriggers [i].isTriggered) 
-				{
-					Rotate (i);
-					break;
+		if (canBeRotated) {
+			for (int i = 0; i < walls.Length; i++) {
+				if (i != floor && i != (5 - floor)) {
+					if (wallTriggers [i].isTriggered) {
+						Rotate (i);
+						break;
+					}
 				}
 			}
 		}
@@ -91,11 +96,22 @@ public class RoomRotation : MonoBehaviour
 		//Rotate
 		if(isRotating)
 		{
-			transform.rotation = Quaternion.Lerp (transform.rotation, Quaternion.Euler(targetRotation), 3 * Time.deltaTime);
+			float timePassed = targetTime - Time.time;
+			float lerpPercentage = (transitionTime - timePassed) / transitionTime;
 
-			if (transform.rotation == Quaternion.Euler (targetRotation))
+			transform.rotation = Quaternion.Lerp (startRotation, Quaternion.Euler(targetRotation), lerpPercentage);
+
+			if (timePassed <= 0)
 				isRotating = false;
+		
+//			if (transform.rotation == Quaternion.Euler (targetRotation))
+//				isRotating = false;
 		}
+	}
+
+	void LateUpdate()
+	{
+
 	}
 
 	private void EnableRotatability()
@@ -111,6 +127,7 @@ public class RoomRotation : MonoBehaviour
 		canBeRotated = true;
 
 		yield return waitWhileUntriggered;
+		yield return waitWhileRotating;
 		rotator = null;
 	}
 
@@ -124,6 +141,9 @@ public class RoomRotation : MonoBehaviour
 	{
 		canBeRotated = false;
 		isRotating = true;
+
+		targetTime = Time.time + transitionTime;
+		startRotation = transform.rotation;
 
 		//Change wall color back to normal.
 		for (int o = 0; o < walls.Length; o++) 
@@ -168,10 +188,10 @@ public class RoomRotation : MonoBehaviour
 			case 1:
 				break;
 			case 2:
-				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
 				break;
 			case 3:
-				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
 				break;
 			case 4:
 				break;
@@ -187,14 +207,14 @@ public class RoomRotation : MonoBehaviour
 				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
 				break;
 			case 1:
-				targetRotation = new Vector3 (90, 90, 90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, -90) + transform.rotation.eulerAngles;
 				break;
 			case 2:
 				break;
 			case 3:
 				break;
 			case 4:
-				targetRotation = new Vector3 (90, -90, -90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 90) + transform.rotation.eulerAngles;
 				break;
 			case 5:
 				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
@@ -205,20 +225,20 @@ public class RoomRotation : MonoBehaviour
 			switch (floor) 
 			{
 			case 0:
-				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
 				break;
 			case 1:
-				targetRotation = new Vector3 (-90, -90, 90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, -90) + transform.rotation.eulerAngles;
 				break;
 			case 2:
 				break;
 			case 3:
 				break;
 			case 4:
-				targetRotation = new Vector3 (-90, 90, -90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 90) + transform.rotation.eulerAngles;
 				break;
 			case 5:
-				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
 				break;
 			}
 			break;
@@ -252,10 +272,10 @@ public class RoomRotation : MonoBehaviour
 				targetRotation = new Vector3 (0, 0, 90) + transform.rotation.eulerAngles;
 				break;
 			case 2:
-				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
 				break;
 			case 3:
-				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
 				break;
 			case 4:
 				targetRotation = new Vector3 (0, 0, -90) + transform.rotation.eulerAngles;
