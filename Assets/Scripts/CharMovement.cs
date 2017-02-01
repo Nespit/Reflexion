@@ -13,6 +13,7 @@ public class CharMovement : MonoBehaviour
 	public bool canDash = true;
 	private WaitForSecondsRealtime waitForDashDuration;
 	private Coroutine dash;
+	private Quaternion currentRotation;
 
 	public KeyCode dashKey;
 
@@ -98,6 +99,7 @@ public class CharMovement : MonoBehaviour
 
 		if (lh != 0f || lv != 0f) 
 		{
+			currentRotation = playerRigidBody.rotation;
 			Rotating(lh, lv);
 		}
 	}
@@ -106,9 +108,9 @@ public class CharMovement : MonoBehaviour
 	{
 		Quaternion targetRotation = Quaternion.LookRotation (movement, Vector3.up);
 
-		Quaternion newRotation = Quaternion.Lerp (GetComponent<Rigidbody> ().rotation, targetRotation, turnSmoothing * Time.deltaTime);
+		Quaternion newRotation = Quaternion.Lerp (currentRotation, targetRotation, turnSmoothing * Time.deltaTime);
 
-		GetComponent<Rigidbody>().MoveRotation(newRotation);
+		playerRigidBody.MoveRotation(newRotation);
 	}
 
 	IEnumerator Dash()
