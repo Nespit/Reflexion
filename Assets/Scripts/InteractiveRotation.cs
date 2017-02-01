@@ -152,6 +152,9 @@ public class InteractiveRotation : MonoBehaviour
 		formerFloor = floor;
 		floor = i;
 
+		wallCameras [formerFloor].enabled = false;
+		wallCameras [floor].enabled = true;
+
 		switch (formerFloor) 
 		{
 		case 0:
