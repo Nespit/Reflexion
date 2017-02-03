@@ -3,21 +3,20 @@ using System.Collections;
 
 public class CharMovement : MonoBehaviour 
 {
-	public float speed = 10;
-	public float turnSmoothing = 15f;
-
-	private float dashDuration = 1.0f;
-	public float dashIntensity = 1000f;
+	public float speed;
+	public float turnSmoothing;
+	public float dashCooldown;
+	public float dashIntensity;
 	public string player = "PlayerA";
-	public bool isDashing = false;
 	public bool canDash = true;
-	private WaitForSecondsRealtime waitForDashDuration;
+	private WaitForSecondsRealtime waitForDashCooldown;
 	private Coroutine dash;
 	private Quaternion currentRotation;
 
 	public KeyCode dashKey;
 
 	private Vector3 movement;
+	private Vector3 lastMovement;
 	private Rigidbody playerRigidBody;
 
 	public Material[] dashFrames;
@@ -28,12 +27,13 @@ public class CharMovement : MonoBehaviour
 
 	private string horizontalAxis;
 	private string verticalAxis;
+	private float horizontalInput;
+	private float verticalInput;
 
 	void Start () 
 	{
 		playerRigidBody = GetComponent<Rigidbody> ();
 		r = GetComponent<MeshRenderer> ();
-		waitForDashDuration = new WaitForSecondsRealtime (dashDuration);
 
 		if (player == "PlayerA") 
 		{
@@ -48,7 +48,10 @@ public class CharMovement : MonoBehaviour
 		
 	void Update () 
 	{
-		if (isDashing)
+		horizontalInput = Input.GetAxisRaw (horizontalAxis);
+		verticalInput = Input.GetAxisRaw (verticalAxis);
+
+		if (canDash)
 		{
 			animationTimer += 0.3f;
 
@@ -72,14 +75,6 @@ public class CharMovement : MonoBehaviour
 			animationTimer = 1;
 			r.material = dashFrames [0];
 		}
-	}
-
-	void FixedUpdate()
-	{
-		float lh = Input.GetAxisRaw (horizontalAxis);
-		float lv = Input.GetAxisRaw (verticalAxis);
-
-		Move (lh, lv);
 
 		if (Input.GetKeyDown (dashKey) && canDash && dash == null) 
 		{
@@ -87,8 +82,15 @@ public class CharMovement : MonoBehaviour
 		}
 	}
 
+	void FixedUpdate()
+	{
+		Move (horizontalInput, verticalInput);
+	}
+
 	void Move (float lh, float lv)
 	{
+		lastMovement = movement;
+
 		movement.Set (lh, 0f, lv);
 
 		movement = Camera.main.transform.TransformDirection(movement);
@@ -100,6 +102,7 @@ public class CharMovement : MonoBehaviour
 		if (lh != 0f || lv != 0f) 
 		{
 			currentRotation = playerRigidBody.rotation;
+
 			Rotating(lh, lv);
 		}
 	}
@@ -115,14 +118,11 @@ public class CharMovement : MonoBehaviour
 
 	IEnumerator Dash()
 	{
-		float lh = Input.GetAxisRaw (horizontalAxis);
-		float lv = Input.GetAxisRaw (verticalAxis);
-
-		isDashing = true;
-
 		canDash = false;
 
-		movement.Set (lh, 0f, lv);
+		yield return new WaitForFixedUpdate ();
+
+		movement.Set (horizontalInput, 0f, verticalInput);
 
 		movement = Camera.main.transform.TransformDirection(movement);
 
@@ -130,9 +130,9 @@ public class CharMovement : MonoBehaviour
 
 		playerRigidBody.AddForce(movement, ForceMode.Force);
 
-		yield return waitForDashDuration;
+		yield return new WaitForSeconds(dashCooldown);
 
-		isDashing = false;
+		canDash = true;
 
 		dash = null;
 	}

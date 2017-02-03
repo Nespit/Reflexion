@@ -71,7 +71,6 @@ public class InteractiveRotation : MonoBehaviour
 				if (i != floor && i != (5 - floor)) 
 				{
 					wallRenderers [i].material.SetColor ("_EmissionColor", lerpedColor);
-					Debug.Log(wallRenderers[i] + " is blinking");
 				}
 			}
 		}
