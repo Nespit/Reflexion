@@ -70,42 +70,27 @@ public class InteractiveRotation : MonoBehaviour
 			{
 				if (i != floor && i != (5 - floor)) 
 				{
+					if (wallTriggers [i].isTriggered) 
+					{
+						Rotate (i);
+						break;
+					}
 					wallRenderers [i].material.SetColor ("_EmissionColor", lerpedColor);
 				}
 			}
 		}
-
-		//Check for rotation trigger.
-		if (canBeRotated) {
-			for (int i = 0; i < walls.Length; i++) {
-				if (i != floor && i != (5 - floor)) {
-					if (wallTriggers [i].isTriggered) {
-						Rotate (i);
-						break;
-					}
-				}
-			}
-		}
-
+			
 		//Rotate
 		if(isRotating)
 		{
 			float timePassed = targetTime - Time.time;
 			float lerpPercentage = (transitionTime - timePassed) / transitionTime;
 
-			transform.rotation = Quaternion.Lerp (startRotation, Quaternion.Euler(targetRotation), lerpPercentage);
+			transform.localRotation = Quaternion.Lerp (startRotation, Quaternion.Euler(targetRotation), lerpPercentage);
 
 			if (timePassed <= 0)
 				isRotating = false;
-		
-//			if (transform.rotation == Quaternion.Euler (targetRotation))
-//				isRotating = false;
 		}
-	}
-
-	void LateUpdate()
-	{
-
 	}
 
 	private void EnableRotatability()
@@ -137,7 +122,7 @@ public class InteractiveRotation : MonoBehaviour
 		isRotating = true;
 
 		targetTime = Time.time + transitionTime;
-		startRotation = transform.rotation;
+		startRotation = transform.localRotation;
 
 		//Change wall color back to normal.
 		for (int o = 0; o < walls.Length; o++) 
@@ -162,38 +147,39 @@ public class InteractiveRotation : MonoBehaviour
 			case 0:
 				break;
 			case 1:
-				targetRotation = new Vector3 (0, 0, -90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (0, 0, -90) + transform.localRotation.eulerAngles;
 				break;
 			case 2:
-				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			case 3:
-				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			case 4:
-				targetRotation = new Vector3 (0, 0, 90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (0, 0, 90) + transform.localRotation.eulerAngles;
 				break;
 			case 5:
 				break;
 			}
 			break;
 		case 1:
-			switch (floor) {
+			switch (floor) 
+			{
 			case 0:
-				targetRotation = new Vector3 (0, 0, 90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (0, 0, 90) + transform.localRotation.eulerAngles;
 				break;
 			case 1:
 				break;
 			case 2:
-				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			case 3:
-				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			case 4:
 				break;
 			case 5:
-				targetRotation = new Vector3 (0, 0, -90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (0, 0, -90) + transform.localRotation.eulerAngles;
 				break;
 			}
 			break;
@@ -201,20 +187,20 @@ public class InteractiveRotation : MonoBehaviour
 			switch (floor) 
 			{
 			case 0:
-				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			case 1:
-				targetRotation = new Vector3 (-90, 0, -90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, -90) + transform.localRotation.eulerAngles;
 				break;
 			case 2:
 				break;
 			case 3:
 				break;
 			case 4:
-				targetRotation = new Vector3 (-90, 0, 90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 90) + transform.localRotation.eulerAngles;
 				break;
 			case 5:
-				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			}
 			break;
@@ -222,20 +208,20 @@ public class InteractiveRotation : MonoBehaviour
 			switch (floor) 
 			{
 			case 0:
-				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			case 1:
-				targetRotation = new Vector3 (90, 0, -90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, -90) + transform.localRotation.eulerAngles;
 				break;
 			case 2:
 				break;
 			case 3:
 				break;
 			case 4:
-				targetRotation = new Vector3 (90, 0, 90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 90) + transform.localRotation.eulerAngles;
 				break;
 			case 5:
-				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			}
 			break;
@@ -243,20 +229,20 @@ public class InteractiveRotation : MonoBehaviour
 			switch (floor) 
 			{
 			case 0:
-				targetRotation = new Vector3 (0, 0, -90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (0, 0, -90) + transform.localRotation.eulerAngles;
 				break;
 			case 1:
 				break;
 			case 2:
-				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			case 3:
-				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			case 4:
 				break;
 			case 5:
-				targetRotation = new Vector3 (0, 0, 90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (0, 0, 90) + transform.localRotation.eulerAngles;
 				break;
 			}
 			break;
@@ -266,16 +252,16 @@ public class InteractiveRotation : MonoBehaviour
 			case 0:
 				break;
 			case 1:
-				targetRotation = new Vector3 (0, 0, 90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (0, 0, 90) + transform.localRotation.eulerAngles;
 				break;
 			case 2:
-				targetRotation = new Vector3 (90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			case 3:
-				targetRotation = new Vector3 (-90, 0, 0) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (-90, 0, 0) + transform.localRotation.eulerAngles;
 				break;
 			case 4:
-				targetRotation = new Vector3 (0, 0, -90) + transform.rotation.eulerAngles;
+				targetRotation = new Vector3 (0, 0, -90) + transform.localRotation.eulerAngles;
 				break;
 			case 5:
 				break;

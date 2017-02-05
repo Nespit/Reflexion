@@ -6,17 +6,20 @@ public class CharMovement : MonoBehaviour
 	public float speed;
 	public float turnSmoothing;
 	public float dashCooldown;
-	public float dashIntensity;
+	private float dashIntensity;
+	private float emRate;
 	public string player = "PlayerA";
-	public bool canDash = true;
 	private WaitForSecondsRealtime waitForDashCooldown;
 	private Coroutine dash;
 	private Quaternion currentRotation;
+	private ParticleSystem pSystem;
+	private ParticleSystem.EmissionModule em;
+	[SerializeField]
+	private float particleGainRate; 
 
 	public KeyCode dashKey;
 
 	private Vector3 movement;
-	private Vector3 lastMovement;
 	private Rigidbody playerRigidBody;
 
 	public Material[] dashFrames;
@@ -34,6 +37,8 @@ public class CharMovement : MonoBehaviour
 	{
 		playerRigidBody = GetComponent<Rigidbody> ();
 		r = GetComponent<MeshRenderer> ();
+		pSystem = GetComponentInChildren<ParticleSystem> ();
+		em = pSystem.emission;
 
 		if (player == "PlayerA") 
 		{
@@ -51,7 +56,25 @@ public class CharMovement : MonoBehaviour
 		horizontalInput = Input.GetAxisRaw (horizontalAxis);
 		verticalInput = Input.GetAxisRaw (verticalAxis);
 
-		if (canDash)
+		emRate = em.rateOverTime.constantMax;
+
+		if (emRate < pSystem.main.maxParticles) 
+		{
+			emRate += particleGainRate;
+			em.rateOverTime = emRate;
+		}
+
+		if (emRate < 300)
+			r.material = dashFrames [0];
+		else if (emRate < 600)
+			r.material = dashFrames [1];
+		else if (emRate < 900)
+			r.material = dashFrames [2];
+		else if (emRate < 1200)
+			r.material = dashFrames [3];
+		else if (emRate < 1500)
+			r.material = dashFrames [4];
+		else if (emRate >= pSystem.main.maxParticles)
 		{
 			animationTimer += 0.3f;
 
@@ -70,16 +93,6 @@ public class CharMovement : MonoBehaviour
 			}				
 			r.material = dashFrames [select];
 		}
-		else
-		{
-			animationTimer = 1;
-			r.material = dashFrames [0];
-		}
-
-		if (Input.GetKeyDown (dashKey) && canDash && dash == null) 
-		{
-			dash = StartCoroutine (Dash ());
-		}
 	}
 
 	void FixedUpdate()
@@ -89,8 +102,6 @@ public class CharMovement : MonoBehaviour
 
 	void Move (float lh, float lv)
 	{
-		lastMovement = movement;
-
 		movement.Set (lh, 0f, lv);
 
 		movement = Camera.main.transform.TransformDirection(movement);
@@ -104,6 +115,11 @@ public class CharMovement : MonoBehaviour
 			currentRotation = playerRigidBody.rotation;
 
 			Rotating(lh, lv);
+
+			if (Input.GetKeyDown (dashKey) && emRate > 300) 
+			{
+				Dash (horizontalInput, verticalInput);
+			}
 		}
 	}
 		
@@ -116,24 +132,16 @@ public class CharMovement : MonoBehaviour
 		playerRigidBody.MoveRotation(newRotation);
 	}
 
-	IEnumerator Dash()
+	void Dash(float lh, float lv)
 	{
-		canDash = false;
-
-		yield return new WaitForFixedUpdate ();
-
-		movement.Set (horizontalInput, 0f, verticalInput);
+		movement.Set (lh, 0f, lv);
 
 		movement = Camera.main.transform.TransformDirection(movement);
 
-		movement = movement.normalized * dashIntensity;
+		movement = movement.normalized * emRate;
 
 		playerRigidBody.AddForce(movement, ForceMode.Force);
 
-		yield return new WaitForSeconds(dashCooldown);
-
-		canDash = true;
-
-		dash = null;
+		em.rateOverTime = 100;
 	}
 }
