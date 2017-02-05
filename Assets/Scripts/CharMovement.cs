@@ -16,7 +16,7 @@ public class CharMovement : MonoBehaviour
 	private ParticleSystem.EmissionModule em;
 	[SerializeField]
 	private float particleGainRate; 
-
+	private Coroutine m_dash;
 	public KeyCode dashKey;
 
 	private Vector3 movement;
@@ -93,6 +93,11 @@ public class CharMovement : MonoBehaviour
 			}				
 			r.material = dashFrames [select];
 		}
+
+		if (Input.GetKeyDown (dashKey) && emRate > 300 && m_dash == null && (verticalInput != 0f || horizontalInput != 0f)) 
+		{
+			m_dash = StartCoroutine(Dash (horizontalInput, verticalInput));
+		}
 	}
 
 	void FixedUpdate()
@@ -115,11 +120,6 @@ public class CharMovement : MonoBehaviour
 			currentRotation = playerRigidBody.rotation;
 
 			Rotating(lh, lv);
-
-			if (Input.GetKeyDown (dashKey) && emRate > 300) 
-			{
-				Dash (horizontalInput, verticalInput);
-			}
 		}
 	}
 		
@@ -132,8 +132,10 @@ public class CharMovement : MonoBehaviour
 		playerRigidBody.MoveRotation(newRotation);
 	}
 
-	void Dash(float lh, float lv)
+	IEnumerator Dash(float lh, float lv)
 	{
+		yield return new WaitForFixedUpdate ();
+
 		movement.Set (lh, 0f, lv);
 
 		movement = Camera.main.transform.TransformDirection(movement);
@@ -143,5 +145,7 @@ public class CharMovement : MonoBehaviour
 		playerRigidBody.AddForce(movement, ForceMode.Force);
 
 		em.rateOverTime = 100;
+
+		m_dash = null;
 	}
 }
