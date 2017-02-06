@@ -54,6 +54,16 @@ public class InteractiveRotation : MonoBehaviour
 			wallCameras [o] = walls [o].GetComponentInChildren<Camera> ();
 			wallTriggers [o] = walls [o].GetComponentInChildren<RotationTrigger> ();
 		}
+
+		//Disable the cameras on all walls except for the floor - They are not disabled by default so they can render the edge markings onto the render textures.
+		StartCoroutine (DisableWallCameras ());
+	}
+
+	IEnumerator DisableWallCameras()
+	{
+		yield return new WaitForSeconds (0.1f);
+		for (int i = 1; i < walls.Length; i++)
+			wallCameras [i].enabled = false;
 	}
 
 	void Update () 
