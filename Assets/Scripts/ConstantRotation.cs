@@ -24,7 +24,7 @@ public class ConstantRotation : MonoBehaviour
 	{
 		if (counter > 20f) 
 		{
-			yield return new WaitForSeconds (20);
+			yield return new WaitForSeconds (30);
 			counter = 0;
 		}
 
