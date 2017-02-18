@@ -11,6 +11,7 @@ public class ClearRenderTextures : MonoBehaviour {
 	void Start () {
 		RenderTexture.active = tileRenderTexture;
 		GL.Clear(false, true, Color.clear);
+        RenderTexture.active = null;
 	}
 	
 	// Update is called once per frame

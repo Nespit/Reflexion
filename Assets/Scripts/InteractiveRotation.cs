@@ -85,7 +85,7 @@ public class InteractiveRotation : MonoBehaviour
 						Rotate (i);
 						break;
 					}
-					wallRenderers [i].material.SetColor ("_EmissionColor", lerpedColor);
+					wallRenderers [i].sharedMaterial.SetColor ("_EmissionColor", lerpedColor);
 				}
 			}
 		}
@@ -139,7 +139,7 @@ public class InteractiveRotation : MonoBehaviour
 		{
 			if (o != floor && o != (5 - floor)) 
 			{
-				wallRenderers [o].material.SetColor ("_EmissionColor", Color.black);
+				wallRenderers [o].sharedMaterial.SetColor ("_EmissionColor", Color.black);
 			}
 		}
 
@@ -282,4 +282,16 @@ public class InteractiveRotation : MonoBehaviour
 		yield return waitWhileRotating;
 		rotating = null;
 	}
+
+    private void OnDisable()
+    {
+        //on disable restore materials
+        for (int o = 0; o < walls.Length; o++)
+        {
+            if (o != floor && o != (5 - floor))
+            {
+                wallRenderers[o].sharedMaterial.SetColor("_EmissionColor", Color.black);
+            }
+        }
+    }
 }
