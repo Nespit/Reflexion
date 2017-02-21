@@ -5,21 +5,9 @@ using UnityEngine;
 public class RoomWall : MonoBehaviour {
 
     private bool m_pulse;
-    private bool m_touchMe;
     private MeshRenderer m_renderer;
     [SerializeField]
     private Camera m_selfCamera;
-    /// <summary>
-    /// Was I touched?
-    /// </summary>
-    public bool Touched
-    {
-        get
-        {
-            return m_touchMe;
-        }
-    }
-
     /// <summary>
     /// Use to update lerp color after toggling lerping
     /// </summary>
@@ -30,6 +18,7 @@ public class RoomWall : MonoBehaviour {
             m_renderer.sharedMaterial.SetColor("_EmissionColor", value);
         }
     }
+
     // Use this for initialization
     void Start () {
 
@@ -40,9 +29,9 @@ public class RoomWall : MonoBehaviour {
         var rend = m_selfCamera.targetTexture;
         rend.DiscardContents();
         RenderTexture.active = rend;
-        GL.Clear(false, false, Color.black);
+        GL.Clear(false, true, Color.black);
         RenderTexture.active = null;
-        RoomInteractive.instance.SubscribeEvent(this);
+        RoomInteractive.instance.Subscribe(gameObject.GetInstanceID());
 
     }
 	
@@ -67,12 +56,17 @@ public class RoomWall : MonoBehaviour {
 
     private void OnCollisionEnter(Collision collision)
     {
-        RoomInteractive.instance.TriggerEvent(this,Vector3.one);
+        RoomInteractive.instance.TriggerEvent(gameObject.GetInstanceID(), Vector3.one);
     }
 
 
     private void OnDisable()
     {
+        var rend = m_selfCamera.targetTexture;
+        rend.DiscardContents();
+        RenderTexture.active = rend;
+        GL.Clear(false, true, Color.black);
+        RenderTexture.active = null;
         m_renderer.sharedMaterial.SetColor("_EmissionColor", Color.black);
     }
 }

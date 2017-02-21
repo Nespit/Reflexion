@@ -38,11 +38,24 @@ public class CharMovement : MonoBehaviour
 	//jumping
 	public Vector3 jump;
 	public float jumpForce = 1.0f;
-	public bool isGrounded;
+    public float groundDetectionRange = 0.5f;
+	public bool isGrounded
+    {
+        get
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, -transform.up, out hit, groundDetectionRange))
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+    }
 
 	void Start () 
 	{
-		playerRigidBody = GetComponent<Rigidbody> ();
+        playerRigidBody = GetComponent<Rigidbody> ();
 		r = GetComponent<MeshRenderer> ();
 		pSystem = GetComponentInChildren<ParticleSystem> ();
 		em = pSystem.emission;
@@ -62,6 +75,9 @@ public class CharMovement : MonoBehaviour
 		
 	void Update () 
 	{
+        Vector3 testEnd = transform.position;
+        testEnd.y -= groundDetectionRange;
+        Debug.DrawLine(transform.position, testEnd);
 		//Get input values
 		horizontalInput = Input.GetAxisRaw (horizontalAxis);
 		verticalInput = Input.GetAxisRaw (verticalAxis);
@@ -122,7 +138,6 @@ public class CharMovement : MonoBehaviour
 
 		if (Input.GetKeyDown (jumpKey) && isGrounded) 
 		{
-			isGrounded = false;
 			playerRigidBody.AddForce (jump * jumpForce, ForceMode.Impulse);
 		}
 	}
@@ -201,14 +216,5 @@ public class CharMovement : MonoBehaviour
 			m_collision = StartCoroutine (Collision ());	
 	}
 
-	//Is the player grounded so he can jump?
-	void OnCollisionStay()
-	{
-		isGrounded = true;
-	}
 
-	void OnCollisionExit()
-	{
-		isGrounded = false;
-	}
 }
