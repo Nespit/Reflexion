@@ -8,6 +8,19 @@ public class RoomWall : MonoBehaviour {
     private MeshRenderer m_renderer;
     [SerializeField]
     private Camera m_selfCamera;
+    [SerializeField]
+    private int m_ID;
+
+    /// <summary>
+    /// Get wall ID.
+    /// </summary>
+    public int ID
+    {
+        get
+        {
+            return m_ID;
+        }
+    }
     /// <summary>
     /// Use to update lerp color after toggling lerping
     /// </summary>
@@ -31,7 +44,7 @@ public class RoomWall : MonoBehaviour {
         RenderTexture.active = rend;
         GL.Clear(false, true, Color.black);
         RenderTexture.active = null;
-        RoomInteractive.instance.Subscribe(gameObject.GetInstanceID());
+        RoomInteractive.instance.Subscribe(this);
 
     }
 	
@@ -56,7 +69,7 @@ public class RoomWall : MonoBehaviour {
 
     private void OnCollisionEnter(Collision collision)
     {
-        RoomInteractive.instance.TriggerEvent(gameObject.GetInstanceID(), collision.relativeVelocity);
+        RoomInteractive.instance.TriggerEvent(this, collision.relativeVelocity);
     }
 
 

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-public class RoomUnityEvent : UnityEvent<int, Vector3>
+public class RoomUnityEvent : UnityEvent<RoomWall, Vector3>
 {
     //concrete class for unity event using vector3 as param
 }
@@ -12,7 +12,6 @@ public class RoomUnityEvent : UnityEvent<int, Vector3>
 public class RoomInteractive : MonoBehaviour {
 
     [SerializeField]
-    private int m_startWallChildIndex = 0;
     private int m_currentWallID;
     private const float k_angleRotation = 90.0f;
     [SerializeField]
@@ -26,7 +25,7 @@ public class RoomInteractive : MonoBehaviour {
     private bool m_rotating = false;
 
     //list of events
-    private Dictionary<int, RoomUnityEvent> m_eventDatabase;
+    private Dictionary<RoomWall, RoomUnityEvent> m_eventDatabase;
     private static RoomInteractive m_instance; //forced singleton
     public static RoomInteractive instance
     {
@@ -36,7 +35,6 @@ public class RoomInteractive : MonoBehaviour {
         }
     }
 
-    private Dictionary<int, int> m_IdToChildIndex;
     // Use this for initialization
     void Awake() {
 
@@ -46,22 +44,16 @@ public class RoomInteractive : MonoBehaviour {
             Destroy(this);
 
         if (m_eventDatabase == null)
-            m_eventDatabase = new Dictionary<int, RoomUnityEvent>();
+            m_eventDatabase = new Dictionary<RoomWall, RoomUnityEvent>();
         m_rotationTick = new WaitForSeconds(Time.deltaTime);
         m_rotationRefresh = new UnityTimer();
         m_rotationRefresh.Start(0); // make timer load up with 0 wait
-        m_IdToChildIndex = new Dictionary<int, int>();
-        for(int i = 0; i < transform.childCount; i++)
-        {
-            var child = transform.GetChild(i).gameObject;
-            m_IdToChildIndex.Add(child.GetInstanceID(), i);
-        }
-        m_currentWallID = transform.GetChild(m_startWallChildIndex).gameObject.GetInstanceID();
+
 
     }
 
     #region Event Manager implementation -- Might get Decoupled from here at a later time
-    public void Subscribe(int eventDesignator)
+    public void Subscribe(RoomWall eventDesignator)
     {
         RoomUnityEvent evt = null;
         if (m_eventDatabase.TryGetValue(eventDesignator, out evt))
@@ -77,7 +69,7 @@ public class RoomInteractive : MonoBehaviour {
         }
     }
 
-    public void UnSubscribeEvent(int eventDesignator)
+    public void UnSubscribeEvent(RoomWall eventDesignator)
     {
         if (!m_instance)
             return;
@@ -91,13 +83,13 @@ public class RoomInteractive : MonoBehaviour {
 
     void UnSubscribeAllEvents()
     {
-        foreach (int designator in m_eventDatabase.Keys)
+        foreach (RoomWall designator in m_eventDatabase.Keys)
         {
             m_eventDatabase[designator].RemoveAllListeners();
         }
     }
 
-    public void TriggerEvent(int designator, Vector3 velocity)
+    public void TriggerEvent(RoomWall designator, Vector3 velocity)
     {
         RoomUnityEvent evt = null;
 
@@ -106,16 +98,16 @@ public class RoomInteractive : MonoBehaviour {
     }
     #endregion
 
-    private void RoomRotationTrigger(int id,Vector3 triggerVelocity)
+    private void RoomRotationTrigger(RoomWall hitWall,Vector3 triggerVelocity)
     {
-        if (id != m_currentWallID && m_rotationRefresh.isDone && !m_rotating)
+        if (hitWall.ID != m_currentWallID && m_rotationRefresh.isDone && !m_rotating)
         {
             if(triggerVelocity.sqrMagnitude > m_collisionMagnitude) // trigger the rotation if we hit hard enough
             {
                 m_rotating = true;
-                var rotDir = GetRotation(m_IdToChildIndex[m_currentWallID], (m_IdToChildIndex[id]));
-                m_currentWallID = id;
+                var rotDir = GetRotation(m_currentWallID, hitWall.ID);
                 StartCoroutine(RotateRoom(rotDir)); // no need to cache as it gets auto collected
+                m_currentWallID = hitWall.ID;
             }
 
         }
@@ -261,11 +253,15 @@ public class RoomInteractive : MonoBehaviour {
     {
         Quaternion targetRotation = Quaternion.Euler(nRotEuler);
         m_rotationRefresh.Start(m_rotationSpeed);
+        float elapsedTime = 0;
         while (!m_rotationRefresh.isDone)
         {
-            transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRotation, Time.deltaTime*m_rotationSpeed);
+            elapsedTime += Time.deltaTime; //add time passed
+            float rotationPercentage = elapsedTime / m_rotationSpeed;
+            transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRotation, rotationPercentage);
             yield return m_rotationTick;
         }
+        transform.localRotation = targetRotation; // getting rid of .000xx errors in the rotation;
 
         m_rotationRefresh.Start(m_rotationDowntime);
         m_rotating = false;
