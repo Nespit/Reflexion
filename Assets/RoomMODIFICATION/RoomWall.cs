@@ -56,7 +56,7 @@ public class RoomWall : MonoBehaviour {
 
     private void OnCollisionEnter(Collision collision)
     {
-        RoomInteractive.instance.TriggerEvent(gameObject.GetInstanceID(), Vector3.one);
+        RoomInteractive.instance.TriggerEvent(gameObject.GetInstanceID(), collision.relativeVelocity);
     }
 
 

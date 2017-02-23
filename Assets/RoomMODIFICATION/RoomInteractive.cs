@@ -16,6 +16,8 @@ public class RoomInteractive : MonoBehaviour {
     private int m_currentWallID;
     private const float k_angleRotation = 90.0f;
     [SerializeField]
+    private float m_collisionMagnitude = 1.0f;
+    [SerializeField]
     private float m_rotationSpeed = 1.0f;
     [SerializeField]
     private float m_rotationDowntime = 1.0f;
@@ -108,10 +110,14 @@ public class RoomInteractive : MonoBehaviour {
     {
         if (id != m_currentWallID && m_rotationRefresh.isDone && !m_rotating)
         {
-            m_rotating = true;
-            var rotDir = GetRotation(m_IdToChildIndex[m_currentWallID], (m_IdToChildIndex[id]));
-            m_currentWallID = id;
-            StartCoroutine(RotateRoom(rotDir)); // no need to cache as it gets auto collected
+            if(triggerVelocity.sqrMagnitude > m_collisionMagnitude) // trigger the rotation if we hit hard enough
+            {
+                m_rotating = true;
+                var rotDir = GetRotation(m_IdToChildIndex[m_currentWallID], (m_IdToChildIndex[id]));
+                m_currentWallID = id;
+                StartCoroutine(RotateRoom(rotDir)); // no need to cache as it gets auto collected
+            }
+
         }
 
     }
