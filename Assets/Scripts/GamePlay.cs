@@ -5,11 +5,15 @@ using UnityEngine.UI;
 
 public class GamePlay : MonoBehaviour {
 
-	[SerializeField]
-	private RenderTexture tileRenderTexture;
-	private RenderTexture currentActiveRT;
+    internal sealed class ColorScore
+    {
+        public int pixelScoreA = 0;
+        public int pixelScoreB = 0;
+    }
+
+    private Dictionary<int, ColorScore> m_wallTextures;
+    private RenderTexture m_currentTexture;
 	private Texture2D tileTexture2D;
-	private Color[] tileColors;
 
 	public Color playerColorA;
 	public Color playerColorB;
@@ -20,62 +24,66 @@ public class GamePlay : MonoBehaviour {
 	public Text scoreA;
 	public Text scoreB;
 
-	Coroutine coroutine;
-	WaitForEndOfFrame waitEndOfFrame;
-
 	void Start () {
-		waitEndOfFrame = new WaitForEndOfFrame ();
-	}
+        m_wallTextures = new Dictionary<int, ColorScore>();
+    }
 		
 	void Update () 
 	{
-		//Read the pixels of the VideoPlayer and store their color values in the vpFrameColors[]
-		if(coroutine==null)
-		{
-			if (tileTexture2D == null)
-				tileTexture2D = new Texture2D(tileRenderTexture.width, tileRenderTexture.height);
+        //for (int i = 0; i < tileRenderTexture.Length; i++)
+        //{
+        //    GetPixelsVP(ref tileRenderTexture[i]);
+        //}
+        if(RoomInteractive.instance.CurrentWall != null)
+        {
+            var currentWalll = RoomInteractive.instance.CurrentWall;
+            ColorScore currentScore = null;
+            if(!m_wallTextures.TryGetValue(currentWalll.ID,out currentScore))
+            {
+                currentScore = new ColorScore();
+                m_wallTextures.Add(currentWalll.ID, currentScore);
+            }
 
-			coroutine = StartCoroutine (GetPixelsVP ());
-		}
+            GetPixelsVP(currentWalll.wallTexture, ref currentScore);
+            pixelCountA = pixelCountB = 0;
+            foreach(KeyValuePair<int,ColorScore> pair in m_wallTextures)
+            {
+                pixelCountA += pair.Value.pixelScoreA;
+                pixelCountB += pair.Value.pixelScoreB;
+            }
+        }
+        if (scoreA != null)
+            scoreA.text = pixelCountA.ToString();
+        if (scoreB != null)
+            scoreB.text = pixelCountB.ToString();
+    }
 
-		//Get the scores.
-		if (tileColors != null) 
-		{
-			for (int i = 0; i < tileColors.Length; i++) 
-			{
-				if (tileColors [i] == playerColorA)
-					pixelCountA+=1;
-				else if(tileColors [i] == playerColorB)
-					pixelCountB+=1;
-			}
-		}
+    private void GetPixelsVP(RenderTexture tex, ref ColorScore editableScore)
+    {
+        // Set the supplied RenderTexture as the active one
+        RenderTexture.active = tex;
 
-		scoreA.text = pixelCountA.ToString();
-		scoreB.text = pixelCountB.ToString();
-	}
+        if (tileTexture2D == null)
+            tileTexture2D = new Texture2D(tex.width, tex.height);
+        else if (tileTexture2D.width != tex.width || tileTexture2D.height != tex.height)
+            tileTexture2D = new Texture2D(tex.width, tex.height);
 
-	IEnumerator GetPixelsVP()
-	{
-		yield return waitEndOfFrame;
-
-		pixelCountA = 0;
-		pixelCountB = 0;
-
-		// Remember currently active render texture
-		currentActiveRT = RenderTexture.active;
-
-		// Set the supplied RenderTexture as the active one
-		RenderTexture.active = tileRenderTexture;
-
-		// Create a new Texture2D and read the RenderTexture image into it
-		tileTexture2D.ReadPixels(new Rect(0, 0, tileTexture2D.width, tileTexture2D.height), 0, 0);
+        // Create a new Texture2D and read the RenderTexture image into it
+        tileTexture2D.ReadPixels(new Rect(0, 0, tileTexture2D.width, tileTexture2D.height), 0, 0);
 
 		//Read the pixels
-		tileColors = tileTexture2D.GetPixels ();
-
+		var tileColors = tileTexture2D.GetPixels ();
+        
 		// Restore previously active render texture
-		RenderTexture.active = currentActiveRT;
-
-		coroutine = null;
+		RenderTexture.active = null;
+        editableScore.pixelScoreA = 0;
+        editableScore.pixelScoreB = 0;
+        foreach(Color pixel in tileColors)
+        {
+            if (pixel == playerColorA)
+                editableScore.pixelScoreA++;
+            else if (pixel == playerColorB)
+                editableScore.pixelScoreB++;
+        }
 	}
 }

@@ -13,11 +13,6 @@ public class ClearRenderTextures : MonoBehaviour {
 		GL.Clear(false, true, Color.clear);
         RenderTexture.active = null;
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 //	void OnPreRender ()
 //	{

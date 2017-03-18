@@ -10,10 +10,10 @@ public class RoomWall : MonoBehaviour {
     private Camera m_selfCamera;
     [SerializeField]
     private int m_ID;
-
+    private RenderTexture m_rend;
     /// <summary>
     /// Get wall ID.
-    /// </summary>
+    /// </summary>#
     public int ID
     {
         get
@@ -21,6 +21,15 @@ public class RoomWall : MonoBehaviour {
             return m_ID;
         }
     }
+
+    public RenderTexture wallTexture
+    {
+        get
+        {
+            return m_rend;
+        }
+    }
+
     /// <summary>
     /// Use to update lerp color after toggling lerping
     /// </summary>
@@ -39,19 +48,18 @@ public class RoomWall : MonoBehaviour {
             throw new MissingReferenceException("Camera missing on gameObject.");
         m_renderer = GetComponent<MeshRenderer>();
         //clear cameras render texture;
-        var rend = m_selfCamera.targetTexture;
-        rend.DiscardContents();
-        RenderTexture.active = rend;
+        m_rend = m_selfCamera.targetTexture;
+        m_rend.DiscardContents();
+        RenderTexture.active = m_rend;
         GL.Clear(false, true, Color.black);
         RenderTexture.active = null;
         RoomInteractive.instance.Subscribe(this);
-
     }
 	
     /// <summary>
     /// Toggles camera on and off
     /// </summary>
-    void ToggleCamera()
+    public void ToggleCamera()
     {
         m_selfCamera.enabled = !m_selfCamera.enabled;
     }

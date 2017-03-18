@@ -11,8 +11,6 @@ public class RoomUnityEvent : UnityEvent<RoomWall, Vector3>
 
 public class RoomInteractive : MonoBehaviour {
 
-    [SerializeField]
-    private int m_currentWallID;
     private const float k_angleRotation = 90.0f;
     [SerializeField]
     private float m_collisionMagnitude = 1.0f;
@@ -23,7 +21,8 @@ public class RoomInteractive : MonoBehaviour {
     private WaitForSeconds m_rotationTick;
     private UnityTimer m_rotationRefresh;
     private bool m_rotating = false;
-
+    [SerializeField]
+    private RoomWall m_currentWall;
     //list of events
     private Dictionary<RoomWall, RoomUnityEvent> m_eventDatabase;
     private static RoomInteractive m_instance; //forced singleton
@@ -32,6 +31,14 @@ public class RoomInteractive : MonoBehaviour {
         get
         {
             return m_instance;
+        }
+    }
+
+    public RoomWall CurrentWall
+    {
+        get
+        {
+            return m_currentWall;
         }
     }
 
@@ -48,9 +55,21 @@ public class RoomInteractive : MonoBehaviour {
         m_rotationTick = new WaitForSeconds(Time.deltaTime);
         m_rotationRefresh = new UnityTimer();
         m_rotationRefresh.Start(0); // make timer load up with 0 wait
-
+        StartCoroutine(SetupRoom());
 
     }
+
+
+    IEnumerator SetupRoom()
+    {
+        yield return new WaitForEndOfFrame();
+        foreach(KeyValuePair<RoomWall,RoomUnityEvent> pair in m_eventDatabase)
+        {
+            if (pair.Key.ID != m_currentWall.ID)
+                pair.Key.ToggleCamera();
+        }
+    }
+
 
     #region Event Manager implementation -- Might get Decoupled from here at a later time
     public void Subscribe(RoomWall eventDesignator)
@@ -100,14 +119,17 @@ public class RoomInteractive : MonoBehaviour {
 
     private void RoomRotationTrigger(RoomWall hitWall,Vector3 triggerVelocity)
     {
-        if (hitWall.ID != m_currentWallID && m_rotationRefresh.isDone && !m_rotating)
+        if (hitWall.ID != m_currentWall.ID && m_rotationRefresh.isDone && !m_rotating)
         {
             if(triggerVelocity.sqrMagnitude > m_collisionMagnitude) // trigger the rotation if we hit hard enough
             {
                 m_rotating = true;
-                var rotDir = GetRotation(m_currentWallID, hitWall.ID);
+                var rotDir = GetRotation(m_currentWall.ID, hitWall.ID);
                 StartCoroutine(RotateRoom(rotDir)); // no need to cache as it gets auto collected
-                m_currentWallID = hitWall.ID;
+                m_currentWall.ToggleCamera();
+                m_currentWall = hitWall;
+                m_currentWall.ToggleCamera();
+               
             }
 
         }
