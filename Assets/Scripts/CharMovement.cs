@@ -14,8 +14,8 @@ public class CharMovement : MonoBehaviour
 	private ParticleSystem pSystem;
 	private ParticleSystem.EmissionModule em;
 	private ParticleSystemRenderer rm;
-	[SerializeField]
-	private float particleGainRate; 
+    private static readonly float defaultParticleGainRate = 2;
+    private float particleGainRate;
 	private Coroutine m_dash;
 	private Coroutine m_collision;
 	public KeyCode dashKey;
@@ -61,6 +61,7 @@ public class CharMovement : MonoBehaviour
 		em = pSystem.emission;
 		rm = pSystem.GetComponent<ParticleSystemRenderer>();
 		jump = new Vector3(0.0f, 3.0f, 0.0f);
+        particleGainRate = defaultParticleGainRate;
 
 		if (player == "PlayerA") 
 		{
@@ -86,7 +87,7 @@ public class CharMovement : MonoBehaviour
 		emRate = em.rateOverTime.constantMax;
 
 		//If the emission rate is below the maximum limit, increase it by particleGainRate
-		if (emRate < pSystem.main.maxParticles) 
+        if (emRate < pSystem.main.maxParticles && !isDashing) 
 		{
 			emRate += particleGainRate;
 			em.rateOverTime = emRate;
@@ -95,12 +96,13 @@ public class CharMovement : MonoBehaviour
 		//Change the appearance of the the player model according to the current particle emission rate
 		if (emRate < 100) 
 		{
-			rm.enabled = false;
+            rm.enabled = false;
 			r.material = dashFrames [0];
 		} 
 		else if (emRate < 300) 
 		{
 			rm.enabled = true;
+            particleGainRate = defaultParticleGainRate;
 			r.material = dashFrames [1];
 		}
 		else if (emRate < 600)
@@ -195,7 +197,8 @@ public class CharMovement : MonoBehaviour
 
 	IEnumerator Collision()
 	{
-		yield return new WaitForSeconds (0.3f);
+        isDashing = true;
+		yield return new WaitForSeconds (1.0f);
 
 		if (isDashing)
 			isDashing = false;
@@ -206,10 +209,11 @@ public class CharMovement : MonoBehaviour
 	//Check if the player was hit by a dashing opponent
 	void OnCollisionEnter(Collision collision)
 	{
-		if (collision.relativeVelocity.magnitude > 10 && !isDashing) 
+        if (collision.relativeVelocity.magnitude > 10 && !isDashing && collision.gameObject.tag == Tags.kPlayer) 
 		{
 			emRate = 0;
 			em.rateOverTime = emRate;
+            particleGainRate = defaultParticleGainRate/10.0f;
 		}
 
 		if (m_collision == null)

@@ -11,6 +11,7 @@ public class RoomUnityEvent : UnityEvent<RoomWall, Vector3>
 
 public class RoomInteractive : MonoBehaviour {
 
+    private const int k_waitFrameCount = 3;
     private const float k_angleRotation = 90.0f;
     [SerializeField]
     private float m_collisionMagnitude = 1.0f;
@@ -62,7 +63,10 @@ public class RoomInteractive : MonoBehaviour {
 
     IEnumerator SetupRoom()
     {
-        yield return new WaitForEndOfFrame();
+
+        for (int i = 0; i < k_waitFrameCount; ++i)
+			yield return new WaitForEndOfFrame();
+        
         foreach(KeyValuePair<RoomWall,RoomUnityEvent> pair in m_eventDatabase)
         {
             if (pair.Key.ID != m_currentWall.ID)
