@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnityTimer {
+public struct UnityTimer {
 
-    private float m_expectedTime = 0;
+    private float m_expectedTime;
 	public void Start (float duration) {
 
         m_expectedTime = Time.time + duration;
