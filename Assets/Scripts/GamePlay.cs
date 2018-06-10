@@ -18,11 +18,14 @@ public class GamePlay : MonoBehaviour {
 	public Color playerColorA;
 	public Color playerColorB;
 
-	public int pixelCountA = 0;
-	public int pixelCountB = 0;
+	private int pixelCountA = 0;
+	private int pixelCountB = 0;
+    [SerializeField]
+    private float countDownValue;
 
 	public Text scoreA;
 	public Text scoreB;
+    public Text countDownText;
 
 	void Start () {
         m_wallTextures = new Dictionary<int, ColorScore>();
@@ -30,32 +33,35 @@ public class GamePlay : MonoBehaviour {
 		
 	void Update () 
 	{
-        //for (int i = 0; i < tileRenderTexture.Length; i++)
-        //{
-        //    GetPixelsVP(ref tileRenderTexture[i]);
-        //}
-        if(RoomInteractive.instance.CurrentWall != null)
+        if(countDownValue > 0)
         {
-            var currentWalll = RoomInteractive.instance.CurrentWall;
-            ColorScore currentScore = null;
-            if(!m_wallTextures.TryGetValue(currentWalll.ID,out currentScore))
+            if(RoomInteractive.instance.CurrentWall != null)
             {
-                currentScore = new ColorScore();
-                m_wallTextures.Add(currentWalll.ID, currentScore);
-            }
+                var currentWall = RoomInteractive.instance.CurrentWall;
+                ColorScore currentScore = null;
+                if(!m_wallTextures.TryGetValue(currentWall.ID,out currentScore))
+                {
+                    currentScore = new ColorScore();
+                    m_wallTextures.Add(currentWall.ID, currentScore);
+                }
 
-            GetPixelsVP(currentWalll.wallTexture, ref currentScore);
-            pixelCountA = pixelCountB = 0;
-            foreach(KeyValuePair<int,ColorScore> pair in m_wallTextures)
-            {
-                pixelCountA += pair.Value.pixelScoreA;
-                pixelCountB += pair.Value.pixelScoreB;
+                GetPixelsVP(currentWall.wallTexture, ref currentScore);
+                pixelCountA = pixelCountB = 0;
+                foreach(KeyValuePair<int,ColorScore> pair in m_wallTextures)
+                {
+                    pixelCountA += pair.Value.pixelScoreA;
+                    pixelCountB += pair.Value.pixelScoreB;
+                }
             }
-        }
-        if (scoreA != null)
-            scoreA.text = pixelCountA.ToString();
-        if (scoreB != null)
-            scoreB.text = pixelCountB.ToString();
+            if (scoreA != null)
+                scoreA.text = pixelCountA.ToString();
+            if (scoreB != null)
+                scoreB.text = pixelCountB.ToString();
+            highlightHighestPixelCount();
+
+            countDownValue -= Time.deltaTime;
+            countDownText.text = Mathf.RoundToInt(countDownValue).ToString();
+         }
     }
 
     private void GetPixelsVP(RenderTexture tex, ref ColorScore editableScore)
@@ -86,4 +92,28 @@ public class GamePlay : MonoBehaviour {
                 editableScore.pixelScoreB++;
         }
 	}
+
+    private void highlightHighestPixelCount()
+    {
+        if(pixelCountA>pixelCountB)
+        {
+            Debug.Log("Score A > B");
+            scoreA.fontSize = 24;
+            scoreA.fontStyle = FontStyle.Bold;
+            scoreB.fontSize = 14;
+            scoreB.fontStyle = FontStyle.Normal;
+        } else if (pixelCountB>pixelCountA)
+        {
+            Debug.Log("Score B > A");
+            scoreB.fontSize = 24;
+            scoreB.fontStyle = FontStyle.Bold;
+            scoreA.fontSize = 14;
+            scoreA.fontStyle = FontStyle.Normal;
+        } else
+            Debug.Log("Score A == B");
+            scoreA.fontSize = 14;
+            scoreA.fontStyle = FontStyle.Normal;
+            scoreB.fontSize = 14;
+            scoreA.fontStyle = FontStyle.Normal;
+    }
 }
